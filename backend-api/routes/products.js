@@ -33,4 +33,35 @@ router.post("/", async (req, res) => {
     }
 });
 
+//Update product
+router.put("/:id", async (req, res) => {
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {new: true}
+        );
+
+        res.json(updatedProduct);
+    } catch (error) {
+        res.status(400).json({ message: error.message});
+    }
+})
+
+//Delete Product
+router.delete("/:id", async (req, res) => {
+    try {
+        const deletedProduct = await Product.findByIdAndDelete(
+            req.params.id
+        );
+
+        res.json({
+            message: "Product deleted",
+            product: deletedProduct
+        });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+})
+
 module.exports = router;

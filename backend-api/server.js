@@ -3,10 +3,20 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+
+
+
 const app = express();
+
+
+
 
 app.use(cors());
 app.use(express.json());
+
+//routes
+const productRoutes = require("./routes/products");
+app.use("/products", productRoutes);
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {

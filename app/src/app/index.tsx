@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+} from "react-native";
 
 type Product = {
   _id: string;
@@ -15,6 +21,7 @@ type Product = {
 export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:3000/products")
@@ -37,13 +44,29 @@ export default function HomeScreen() {
     );
   }
 
+  const filteredProducts = products.filter((product) => {
+    const searchTerm = search.toLowerCase();
+
+    return (
+      product.name.toLowerCase().includes(searchTerm) ||
+      product.upc.toLowerCase().includes(searchTerm)
+    );
+  });
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Retail Product Lookup</Text>
 
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search by product name or UPC"
+        value={search}
+        onChangeText={setSearch}
+      />
+
       <Text style={styles.title}>Search for product information</Text>
 
-      {products.map((product) => (
+      {filteredProducts.map((product) => (
         <View key={product._id} style={styles.product}>
           <Text style={styles.productName}>{product.name}</Text>
           <Text>UPC: {product.upc}</Text>
@@ -81,5 +104,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 6,
+  },
+
+  searchInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 20,
   },
 });

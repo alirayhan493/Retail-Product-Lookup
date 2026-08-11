@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   StyleSheet,
   Text,
   View,
@@ -22,6 +23,7 @@ export default function HomeScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [selectedCateogry, setSelectedCategory] = useState("All");
 
   useEffect(() => {
     fetch("http://localhost:3000/products")
@@ -44,13 +46,22 @@ export default function HomeScreen() {
     );
   }
 
+  const categories = [
+    "All",
+    ...new Set(products.map((product) => product.category)),
+  ];
+
   const filteredProducts = products.filter((product) => {
     const searchTerm = search.toLowerCase();
 
-    return (
+    const matchesSearch =
       product.name.toLowerCase().includes(searchTerm) ||
-      product.upc.toLowerCase().includes(searchTerm)
-    );
+      product.upc.toLowerCase().includes(searchTerm);
+
+    const matchesCategory =
+      selectedCateogry === "All" || product.category === selectedCateogry;
+
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -64,7 +75,22 @@ export default function HomeScreen() {
         onChangeText={setSearch}
       />
 
-      <Text style={styles.title}>Search for product information</Text>
+      <View style={styles.categoryContainer}>
+        {categories.map((category) => (
+          <Pressable
+            key={category}
+            style={[
+              styles.categoryButton,
+              selectedCateogry === category && styles.categoryButtonSelected,
+            ]}
+            onPress={() => setSelectedCategory(category)}
+          >
+            <Text>{category}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={styles.title}>Product Information</Text>
 
       {filteredProducts.map((product) => (
         <View key={product._id} style={styles.product}>
@@ -111,5 +137,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 20,
+  },
+
+  categoryContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 20,
+  },
+
+  categoryButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderRadius: 20,
+  },
+
+  categoryButtonSelected: {
+    backgroundColor: "#ddd",
   },
 });

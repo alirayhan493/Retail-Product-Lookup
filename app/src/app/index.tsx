@@ -7,6 +7,7 @@ import {
   View,
   TextInput,
 } from "react-native";
+import { Link } from "expo-router";
 
 type Product = {
   _id: string;
@@ -93,14 +94,23 @@ export default function HomeScreen() {
       <Text style={styles.title}>Product Information</Text>
 
       {filteredProducts.map((product) => (
-        <View key={product._id} style={styles.product}>
-          <Text style={styles.productName}>{product.name}</Text>
-          <Text>UPC: {product.upc}</Text>
-          <Text>Brand: {product.brand}</Text>
-          <Text>Category: {product.category}</Text>
-          <Text>Price ${product.price.toFixed(2)}</Text>
-          <Text>Description: {product.description}</Text>
-        </View>
+        <Link
+          key={product._id}
+          href={{
+            pathname: "/product",
+            params: { id: product._id },
+          }}
+          asChild
+        >
+          <Pressable style={styles.product}>
+            <Text style={styles.productName}>{product.name}</Text>
+            <Text>UPC: {product.upc}</Text>
+            <Text>Brand: {product.brand}</Text>
+            <Text>Category: {product.category}</Text>
+            <Text>Price ${product.price.toFixed(2)}</Text>
+            <Text>Description: {product.description}</Text>
+          </Pressable>
+        </Link>
       ))}
     </View>
   );

@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
 
 type Product = {
   _id: string;
@@ -51,6 +51,10 @@ export default function ProductScreen() {
     <View style={style.container}>
       <Text style={style.title}>{product.name}</Text>
 
+      {product.imageUrl && (
+        <Image source={{ uri: product.imageUrl }} style={style.productImage} />
+      )}
+
       <Text style={style.info}>SKU: {product.upc}</Text>
 
       <Text style={style.info}>Category: {product.category}</Text>
@@ -90,5 +94,12 @@ const style = StyleSheet.create({
 
   description: {
     fontSize: 16,
+  },
+
+  productImage: {
+    width: "100%",
+    height: 250,
+    resizeMode: "contain",
+    marginBottom: 20,
   },
 });

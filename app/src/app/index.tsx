@@ -91,6 +91,12 @@ export default function HomeScreen() {
         ))}
       </View>
 
+      <Link href="/add-product" asChild>
+        <Pressable style={styles.addButton}>
+          <Text style={styles.addButtonText}>Add Product</Text>
+        </Pressable>
+      </Link>
+
       <Text style={styles.title}>Product Information</Text>
 
       {filteredProducts.map((product) => (
@@ -165,5 +171,18 @@ const styles = StyleSheet.create({
 
   categoryButtonSelected: {
     backgroundColor: "#ddd",
+  },
+
+  addButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+
+  addButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

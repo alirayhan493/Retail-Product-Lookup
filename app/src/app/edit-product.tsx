@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -7,11 +7,26 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
-export default function AddProductSreen() {
+type Product = {
+  _id: string;
+  upc: string;
+  name: string;
+  brand: string;
+  category: string;
+  price: number;
+  description?: string;
+  //imageUrl?: string;
+};
+
+export default function EditProductScreen() {
+  const { id } = useLocalSearchParams();
+  const router = useRouter();
+
+  const [product, setProduct] = useState<Product | null>(null);
+
   const [name, setName] = useState("");
   const [upc, setUpc] = useState("");
   const [brand, setBrand] = useState("");
@@ -19,54 +34,60 @@ export default function AddProductSreen() {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
 
-  const router = useRouter();
+  useEffect(() => {
+    fetch(`http://localhost:3000/products/${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setProduct(data);
+        setName(data.name);
+        setUpc(data.upc);
+        setBrand(data.brand);
+        setCategory(data.category);
+        setPrice(String(data.price));
+        setDescription(data.description || "");
+      })
+      .catch((error) => console.error(error));
+  }, [id]);
 
-  const addProduct = async () => {
-    if (!name || !upc || !brand || !category || !price) {
-      Alert.alert(
-        "Missing Information,",
-        "Please fill in all required fields.",
-      );
-      return;
-    }
-
+  const updateProduct = async () => {
     try {
-      const response = await fetch("http://localhost:3000/products", {
-        method: "POST",
+      const response = await fetch(`http://localhost:3000/products/${id}`, {
+        method: "PUT",
         headers: {
-          "Content-Type": "application/json",
+          "Content-type": "application/json",
         },
         body: JSON.stringify({
           name,
           upc,
           brand,
           category,
-          price: Number(price),
+          price,
           description,
         }),
       });
 
-      Alert.alert("Success", "Product added successfully");
+      if (!response.ok) {
+        throw new Error("Failed to update product");
+      }
 
-      setName("");
-      setUpc("");
-      setBrand("");
-      setCategory("");
-      setPrice("");
-      setDescription("");
+      Alert.alert("Success", "Product updated");
+      router.back();
     } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Could not add product.");
+      Alert.alert("Error", "Could not update product. ");
     }
   };
+
+  if (!product) {
+    return null;
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Pressable onPress={() => router.back()} style={styles.backButton}>
         <Text style={styles.backButtonText}>Back</Text>
       </Pressable>
-      <Text style={styles.title}>Add Product</Text>
-      <Text style={styles.label}>Name</Text>
+      <Text style={styles.title}>Edit Product</Text>
+
       <TextInput
         style={styles.input}
         value={name}
@@ -74,23 +95,13 @@ export default function AddProductSreen() {
         placeholder="Product Name"
       />
 
-      <Text style={styles.label}>SKU</Text>
       <TextInput
         style={styles.input}
         value={upc}
         onChangeText={setUpc}
-        placeholder="SKU"
+        placeholder="UPC"
       />
 
-      <Text style={styles.label}>Brand</Text>
-      <TextInput
-        style={styles.input}
-        value={brand}
-        onChangeText={setBrand}
-        placeholder="Brand"
-      />
-
-      <Text style={styles.label}>Category</Text>
       <TextInput
         style={styles.input}
         value={category}
@@ -98,7 +109,13 @@ export default function AddProductSreen() {
         placeholder="Category"
       />
 
-      <Text style={styles.label}>Price</Text>
+      <TextInput
+        style={styles.input}
+        value={brand}
+        onChangeText={setBrand}
+        placeholder="Brand"
+      />
+
       <TextInput
         style={styles.input}
         value={price}
@@ -107,16 +124,14 @@ export default function AddProductSreen() {
         keyboardType="decimal-pad"
       />
 
-      <Text style={styles.label}>Description</Text>
       <TextInput
-        style={[styles.input, styles.description]}
+        style={styles.input}
         value={description}
         onChangeText={setDescription}
-        placeholder="Product Description"
-        multiline
+        placeholder=""
       />
 
-      <Button title="Add Product" onPress={addProduct} />
+      <Button title="Save Changes" onPress={updateProduct}></Button>
     </ScrollView>
   );
 }
@@ -130,20 +145,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 30,
-  },
-
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 6,
+    marginBottom: 25,
   },
 
   input: {
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
-    marginBottom: 18,
+    marginBottom: 16,
   },
 
   description: {

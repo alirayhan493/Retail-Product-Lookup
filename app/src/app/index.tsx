@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  FlatList,
   Pressable,
   StyleSheet,
   Text,
@@ -99,25 +100,28 @@ export default function HomeScreen() {
 
       <Text style={styles.title}>Product Information</Text>
 
-      {filteredProducts.map((product) => (
-        <Link
-          key={product._id}
-          href={{
-            pathname: "/product",
-            params: { id: product._id },
-          }}
-          asChild
-        >
-          <Pressable style={styles.product}>
-            <Text style={styles.productName}>{product.name}</Text>
-            <Text>UPC: {product.upc}</Text>
-            <Text>Brand: {product.brand}</Text>
-            <Text>Category: {product.category}</Text>
-            <Text>Price ${product.price.toFixed(2)}</Text>
-            <Text>Description: {product.description}</Text>
-          </Pressable>
-        </Link>
-      ))}
+      <FlatList
+        data={filteredProducts}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <Link
+            href={{
+              pathname: "/product",
+              params: { id: item._id },
+            }}
+            asChild
+          >
+            <Pressable style={styles.product}>
+              <Text style={styles.productName}>{item.name}</Text>
+              <Text>UPC: {item.upc}</Text>
+              <Text>Brand: {item.brand}</Text>
+              <Text>Category: {item.category}</Text>
+              <Text>Price ${item.price.toFixed(2)}</Text>
+              <Text>Description: {item.description}</Text>
+            </Pressable>
+          </Link>
+        )}
+      />
     </View>
   );
 }
